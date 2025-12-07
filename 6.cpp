@@ -44,8 +44,8 @@ vector<string> get_by_word(string input) {
   return result;
 }
 
-int main() {
-  vector<string> input = get_input();
+// part 1
+void solve_one(vector<string> input) {
 
   vector<vector<long long>> sheet(input.size(), vector<long long>());
   vector<vector<string>> ssheet(input.size(), vector<string>());
@@ -65,7 +65,6 @@ int main() {
 
   vector<string> calc = get_by_word(input[size - 1]);
 
-  /* part 1
   for (int i = 0; i < calc.size(); ++i) {
     // cout << calc[i] << ' ';
     if (calc[i] == "+") {
@@ -82,62 +81,76 @@ int main() {
       result += mul;
     }
   }
-  */
 
-  cout << "CALC" << '\n';
+  cout << result << '\n';
+}
 
-  for (int i = 0; i < calc.size(); ++i) {
-    if (calc[i] == "+") {
-      long long sum = 0;
-      vector<long long> new_nums;
-      bool one = true;
-      for (int k = 100; k >= 0; --k) {
-        string news = "";
-        one = false;
-        for (int j = 0; j < size - 1; ++j) {
-          if (ssheet[j][i].size() > k) {
-            news += ssheet[j][i][k];
-            one = true;
-          }
-        }
-        if (one) {
-          new_nums.push_back(stoll(news));
-        } else {
-        }
-      };
-      for (auto x : new_nums) {
-        cout << x << ' ';
-        sum += x;
-      }
-      result += sum;
-    } else if (calc[i] == "*") {
-      long long mul = 1;
-      vector<long long> new_nums;
-      bool one = true;
-      for (int k = 100; k >= 0; --k) {
-        string news = "";
-        one = false;
-        for (int j = 0; j < size - 1; ++j) {
-          if (ssheet[j][i].size() > k) {
-            news += ssheet[j][i][k];
-            one = true;
-          }
-        }
-        if (one) {
-          new_nums.push_back(stoll(news));
-        } else {
-        }
-      };
-      for (auto x : new_nums) {
-        cout << x << ' ';
-        mul *= x;
-      }
-      result += mul;
+int main() {
+  vector<string> input = get_input();
+
+  vector<int> splits;
+  int N = input.size();
+
+  string &operations = input[N - 1];
+  for (int i = 0; i < operations.size(); ++i) {
+    if (operations[i] == '+' || operations[i] == '*') {
+      splits.push_back(i);
+    }
+  }
+  splits.push_back(operations.size());
+
+  vector<vector<string>> matrix(N);
+
+  for (int i = 0; i < N - 1; ++i) {
+    for (int k = 0; k < splits.size() - 1; ++k) {
+      string split = input[i].substr(splits[k], splits[k + 1] - splits[k]);
+      // cout << split << "-->" << splits[k] << ':' << splits[k + 1] - splits[k]
+      //     << ' ';
+      // reverse for right to left handling
+      reverse(split.begin(), split.end());
+      matrix[i].push_back(split);
+      cout << matrix[i].back() << ' ';
     }
     cout << '\n';
   }
 
-  cout << result << '\n';
+  long long res = 0;
+
+  cout << "\nCALCULATED MATRIX: \n";
+
+  auto blank = [&](string s) {
+    return s.empty() || std::all_of(s.begin(), s.end(), [](unsigned char c) {
+             return std::isblank(c);
+           });
+  };
+
+  for (int i = 0; i < splits.size() - 1; ++i) {
+    char &op = operations[splits[i]];
+    long long f = (op == '+' ? 0 : 1);
+    for (int k = 0; k < 100; ++k) {
+      string curr = "";
+      for (int j = 0; j < N - 1; ++j) {
+        if (k >= matrix[j][i].length()) {
+          continue;
+        } else {
+          curr += matrix[j][i][k];
+        }
+      }
+      if (blank(curr)) {
+        continue;
+      }
+      cout << curr << ' ' << op << ' ';
+      if (op == '*') {
+        f *= stoll(curr);
+      } else {
+        f += stoll(curr);
+      }
+    }
+    res += f;
+    cout << '\n';
+  }
+
+  cout << res << '\n';
 
   return 0;
 }
