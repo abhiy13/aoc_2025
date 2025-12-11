@@ -48,6 +48,9 @@ int main() {
 
     for (auto pt : v) {
       bool inside = false;
+      for (auto ptp : points) {
+        if ()
+      }
     }
 
     return false;
